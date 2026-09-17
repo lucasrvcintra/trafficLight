@@ -1,61 +1,78 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { ThemedView } from "@/components/themed-view";
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+type LightColor = "red" | "yellow" | "green";
 
-export default function HomeScreen() {
+export default function TrafficLightScreen() {
+  const [activeLight, setActiveLight] = useState<LightColor>("red");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveLight((current) => {
+        if (current === "red") return "green";
+        if (current === "green") return "yellow";
+        return "red";
+      });
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+      <SafeAreaView edges={["bottom", "left", "right"]} style={styles.content}>
+        <View style={styles.trafficLightContainer}>
+          <View style={styles.verticalTrafficLight}>
+            <View
+              style={[
+                styles.light,
+                styles.redLight,
+                activeLight !== "red" && styles.offLight,
+              ]}
+            />
+            <View
+              style={[
+                styles.light,
+                styles.yellowLight,
+                activeLight !== "yellow" && styles.offLight,
+              ]}
+            />
+            <View
+              style={[
+                styles.light,
+                styles.greenLight,
+                activeLight !== "green" && styles.offLight,
+              ]}
+            />
+          </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
+          <View style={styles.horizontalTrafficLight}>
+            <View
+              style={[
+                styles.light,
+                styles.redLight,
+                activeLight !== "red" && styles.offLight,
+              ]}
+            />
+            <View
+              style={[
+                styles.light,
+                styles.yellowLight,
+                activeLight !== "yellow" && styles.offLight,
+              ]}
+            />
+            <View
+              style={[
+                styles.light,
+                styles.greenLight,
+                activeLight !== "green" && styles.offLight,
+              ]}
+            />
+          </View>
+        </View>
       </SafeAreaView>
     </ThemedView>
   );
@@ -64,35 +81,58 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
   },
-  safeArea: {
+  content: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+    gap: 30,
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+  trafficLightContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 40,
   },
-  title: {
-    textAlign: 'center',
+  verticalTrafficLight: {
+    width: 100,
+    height: 260,
+    backgroundColor: "#222222",
+    borderRadius: 20,
+    flexDirection: "column",
+    justifyContent: "space-around",
+    alignItems: "center",
+    paddingVertical: 15,
+    borderWidth: 2,
+    borderColor: "#444444",
   },
-  code: {
-    textTransform: 'uppercase',
+  horizontalTrafficLight: {
+    width: 260,
+    height: 100,
+    backgroundColor: "#222222",
+    borderRadius: 20,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    paddingHorizontal: 15,
+    borderWidth: 2,
+    borderColor: "#444444",
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  light: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+  },
+  redLight: {
+    backgroundColor: "#FF3B30",
+  },
+  yellowLight: {
+    backgroundColor: "#FFCC00",
+  },
+  greenLight: {
+    backgroundColor: "#34C759",
+  },
+  offLight: {
+    opacity: 0.25,
   },
 });
