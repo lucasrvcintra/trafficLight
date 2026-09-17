@@ -1,4 +1,5 @@
-import { View, type ViewProps, useColorScheme } from "react-native";
+import { View, type ViewProps } from "react-native";
+import { useTheme } from "expo-router/react-navigation";
 
 export type ThemedViewProps = ViewProps & {
   lightColor?: string;
@@ -11,11 +12,10 @@ export function ThemedView({
   darkColor,
   ...otherProps
 }: ThemedViewProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-  const backgroundColor = isDark
-    ? (darkColor ?? "#121212")
-    : (lightColor ?? "#ffffff");
+  const theme = useTheme();
+  const backgroundColor = theme.dark
+    ? (darkColor ?? theme.colors.background)
+    : (lightColor ?? theme.colors.background);
 
   return <View style={[{ backgroundColor }, style]} {...otherProps} />;
 }
